@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
+import "hardhat/console.sol";
 
 /**
  * @title AuthorizedExecutor
@@ -48,12 +49,15 @@ abstract contract AuthorizedExecutor is ReentrancyGuard {
      */
     function execute(address target, bytes calldata actionData) external nonReentrant returns (bytes memory) {
         // Read the 4-bytes selector at the beginning of `actionData`
+        console.log("----d");
+        console.logBytes(abi.encodeWithSignature("sweepFunds(address,address)", msg.sender, msg.sender));
         bytes4 selector;
         uint256 calldataOffset = 4 + 32 * 3; // calldata position where `actionData` begins
         assembly {
             selector := calldataload(calldataOffset)
         }
-
+        console.log("Selector:");
+        console.logBytes4(selector);
         if (!permissions[getActionId(selector, msg.sender, target)]) {
             revert NotAllowed();
         }
